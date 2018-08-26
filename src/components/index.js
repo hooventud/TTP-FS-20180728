@@ -2,6 +2,6 @@ import React from 'react';
 
 export default class Main extends React.Component {
   render() {
-    return <h1>Aaron's React App!</h1>;
+    return <h1>Your React-Redux App!</h1>;
   }
 }
