@@ -13,12 +13,8 @@ const reducer = (state = initialState, action) => {
   }
 };
 
-const reducers = combineReducers({
-  name: reducer,
-});
-
 const store = createStore(
-  reducers,
+  reducer,
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
   applyMiddleware(ReduxThunk)
 );
