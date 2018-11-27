@@ -3,8 +3,38 @@ const morgan = require('morgan');
 const routes = require('./api');
 const path = require('path');
 const db = require('./db');
-
+const session = require('express-session');
+const passport = require('passport');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+const sessionStore = new SequelizeStore({ db });
 const app = express();
+
+passport.serializeUser((user, done) => done(null, user.id));
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await db.models.user.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || '588BB1DDFEDEDD',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+//Body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/api', require('./api'));
+app.use('/auth', require('./auth'));
 
 //Database sync
 db.sync({ force: true }).then(() => {
@@ -20,13 +50,6 @@ app.use(morgan('dev'));
 
 //Static middleware
 app.use(express.static(path.join(__dirname, '..', 'dist')));
-
-//Body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-//'API' routes
-app.use('/api', routes);
 
 //404 middleware
 app.use((req, res, next) => {
