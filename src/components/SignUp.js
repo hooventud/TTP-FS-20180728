@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { connect } from 'react-redux';
+import { createUser, fetchPortfolio, getHoldings } from '../store/index';
 
 class SignUp extends Component {
   constructor(props) {
@@ -7,7 +8,7 @@ class SignUp extends Component {
     this.state = {
       name: '',
       email: '',
-      password: '',
+      password: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,13 +17,16 @@ class SignUp extends Component {
   handleChange(e) {
     e.preventDefault();
     this.setState({
-      [e.target.id]: e.target.value,
+      [e.target.id]: e.target.value
     });
   }
 
   async handleSubmit(e) {
     e.preventDefault();
-    await axios.post('/auth/signup', this.state);
+    await this.props.createUser(this.state);
+    await this.props.fetchPortfolio(this.props.user.id);
+    await this.props.getHoldings(this.props.portfolio.id);
+    this.props.history.push('/home');
   }
 
   render() {
@@ -64,14 +68,22 @@ class SignUp extends Component {
             aria-label="Toolbar with button groups"
           >
             <div className="btn-group mr-2" role="group">
-              <button onClick={this.handleSubmit} className="btn btn-primary">
+              <button
+                type="submit"
+                onClick={this.handleSubmit}
+                className="btn btn-primary"
+              >
                 Submit
               </button>
             </div>
             <div className="btn-group mr-2" role="group">
               <button
+                type="submit"
                 className="btn btn-secondary"
-                onClick={() => this.props.history.push('/')}
+                onClick={evt => {
+                  evt.preventDefault();
+                  this.props.history.push('/');
+                }}
               >
                 Sign In
               </button>
@@ -83,4 +95,23 @@ class SignUp extends Component {
   }
 }
 
-export default SignUp;
+const mapStateToProps = state => {
+  return {
+    user: state.user.currentUser,
+    portfolio: state.portfolio.portfolio,
+    holdings: state.portfolio.holdings
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    createUser: user => dispatch(createUser(user)),
+    fetchPortfolio: userId => dispatch(fetchPortfolio(userId)),
+    getHoldings: holdings => dispatch(getHoldings(holdings))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SignUp);

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Header from './Header';
 import PortfolioView from './PortfolioView';
-import Transactions from './Transactions';
 
 class SignedInView extends Component {
   render() {

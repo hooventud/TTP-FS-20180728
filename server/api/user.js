@@ -8,7 +8,8 @@ router.get('/', async (req, res, next) => {
     const users = await User.findOne({
       where: {
         email
-      }
+      },
+      include: [{ model: Portfolio }]
     });
     res.json(users);
   } catch (err) {
@@ -26,6 +27,7 @@ router.post('/', async (req, res, next) => {
     });
     const portfolio = await Portfolio.create();
     portfolio.setUser(user);
+    user.portfolio = portfolio;
     res.json(user);
   } catch (err) {
     next(err);

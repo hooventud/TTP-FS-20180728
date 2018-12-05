@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
+import { getUser, fetchPortfolio, getHoldings } from '../store/index';
 
 class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
       email: '',
-      password: '',
+      password: ''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -16,13 +16,16 @@ class SignIn extends Component {
   handleChange(e) {
     e.preventDefault();
     this.setState({
-      [e.target.id]: e.target.value,
+      [e.target.id]: e.target.value
     });
   }
 
   async handleSubmit(e) {
     e.preventDefault();
-    await axios.post('/auth/login', this.state);
+    await this.props.getUser(this.state);
+    await this.props.fetchPortfolio(this.props.user.id);
+    await this.props.getHoldings(this.props.portfolio.id);
+    this.props.history.push('/home');
   }
 
   render() {
@@ -54,14 +57,20 @@ class SignIn extends Component {
             aria-label="Toolbar with button groups"
           >
             <div className="btn-group mr-2" role="group">
-              <button className="btn btn-primary" onClick={this.handleSubmit}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={this.handleSubmit}
+              >
                 Submit
               </button>
             </div>
             <div className="btn-group mr-2" role="group">
               <button
+                type="button"
                 className="btn btn-secondary"
-                onClick={() => {
+                onClick={evt => {
+                  evt.preventDefault();
                   this.props.history.push('/signup');
                 }}
               >
@@ -75,4 +84,23 @@ class SignIn extends Component {
   }
 }
 
-export default SignIn;
+const mapStateToProps = state => {
+  return {
+    user: state.user.currentUser,
+    portfolio: state.portfolio.portfolio,
+    holdings: state.portfolio.holdings
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getUser: user => dispatch(getUser(user)),
+    fetchPortfolio: userId => dispatch(fetchPortfolio(userId)),
+    getHoldings: portfolio => dispatch(getHoldings(portfolio))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SignIn);

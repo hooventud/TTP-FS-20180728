@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../');
 const crypto = require('crypto');
+const Portfolio = require('./portfolio');
 
 const User = db.define('user', {
   name: {
@@ -49,7 +50,17 @@ const setSaltAndPassword = user => {
   }
 };
 
+const createPortfolio = async user => {
+  try {
+    const portfolio = await Portfolio.create();
+    await portfolio.setUser(user);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 User.beforeCreate(setSaltAndPassword);
 User.beforeUpdate(setSaltAndPassword);
+User.afterCreate(createPortfolio);
 
 module.exports = User;

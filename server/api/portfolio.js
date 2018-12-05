@@ -1,24 +1,24 @@
 const router = require('express').Router();
-const { Portfolio, User } = require('../db/models');
+const { Portfolio } = require('../db/models');
 module.exports = router;
 
 router.get('/:userId', async (req, res, next) => {
   try {
-    const portfolio = await Portfolio.findOne({
+    const response = await Portfolio.findOne({
       where: { userId: req.params.userId }
     });
-
+    const portfolio = response.dataValues;
     res.json(portfolio);
   } catch (err) {
     next(err);
   }
 });
 
-router.post('/:userId', async (req, res, next) => {
-  console.log(req.params.userId);
+router.get('/:portfolioId/holdings', async (req, res, next) => {
   try {
-    const portfolio = await Portfolio.create({ userId: req.params.userId });
-    res.json(portfolio);
+    const portfolio = await Portfolio.findById(req.params.portfolioId);
+    const holdings = await portfolio.getHoldings();
+    res.json(holdings);
   } catch (error) {
     console.log(error);
   }
@@ -27,14 +27,14 @@ router.post('/:userId', async (req, res, next) => {
 router.put(`/:userId`, async (req, res, next) => {
   try {
     let balance = 0;
-    const { type, qty, price } = req.body;
+    const { type, quantity, price } = req.body;
     const portfolio = await Portfolio.findOne({
       where: { userId: req.params.userId }
     });
     if (type.toString() === 'buy') {
-      balance = portfolio.cash - qty * price;
+      balance = portfolio.cash - quantity * price;
     } else {
-      balance = portfolio.cash + qty * price;
+      balance = portfolio.cash + quantity * price;
     }
     await Portfolio.update(
       { cash: balance },

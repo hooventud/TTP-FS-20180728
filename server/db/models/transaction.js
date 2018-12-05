@@ -3,17 +3,17 @@ const db = require('../');
 
 const Transaction = db.define('transaction', {
   type: {
-    type: Sequelize.ENUM('buy', 'sell'),
+    type: Sequelize.ENUM('buy', 'sell')
   },
   ticker: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING
   },
-  qty: {
-    type: Sequelize.INTEGER,
+  quantity: {
+    type: Sequelize.INTEGER
   },
   price: {
-    type: Sequelize.INTEGER,
-  },
+    type: Sequelize.INTEGER
+  }
 });
 
 module.exports = Transaction;

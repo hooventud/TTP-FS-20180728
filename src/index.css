@@ -62,6 +62,18 @@ code {
   display: flex;
 }
 
+.red-price {
+  color: red;
+}
+
+.green-price {
+  color: green;
+}
+
+.grey-price {
+  color: grey;
+}
+
 .buy-sell-section {
   display: flex;
   flex-direction: column;
